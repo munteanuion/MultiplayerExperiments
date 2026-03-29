@@ -1166,14 +1166,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: NetworkManager
       objectReference: {fileID: 0}
-    - target: {fileID: 7154073969311956135, guid: 86b2337f509c2624c9f2d1922e2ea420, type: 3}
-      propertyPath: NetworkConfig.TickRate
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 7154073969311956135, guid: 86b2337f509c2624c9f2d1922e2ea420, type: 3}
-      propertyPath: NetworkConfig.ConnectionApproval
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 7316149411775153193, guid: 86b2337f509c2624c9f2d1922e2ea420, type: 3}
       propertyPath: m_LocalPosition.x
       value: -67.10873
