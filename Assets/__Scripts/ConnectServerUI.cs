@@ -40,7 +40,11 @@ namespace __Scripts
         private void OnCreateServerClicked()
         {
             if (!_networkManager.IsListening)
+            {
+                var payload = System.Text.Encoding.UTF8.GetBytes("parola123");
+                _networkManager.NetworkConfig.ConnectionData = payload;
                 _networkManager.StartHost();
+            }
             else
                 Debug.LogWarning("Already connected to a server.");
         }
@@ -49,7 +53,7 @@ namespace __Scripts
         {
             if (!_networkManager.IsListening)
             {
-                var payload = System.Text.Encoding.UTF8.GetBytes("parola123");
+                var payload = System.Text.Encoding.UTF8.GetBytes("parola1234");
                 _networkManager.NetworkConfig.ConnectionData = payload;
                 _networkManager.StartClient();
             }
@@ -71,14 +75,13 @@ namespace __Scripts
             
             approve = 
                 !(_networkManager.ConnectedClients.Count >= 4)
-                && text == "parola123"
-                || _networkManager.IsServer;
+                && text == "parola123";
 
             response.Approved = approve;
             response.CreatePlayerObject = approve;
             response.Pending = false;
 
-            response.Reason = approve ? "Connection Success" : "Server full";
+            response.Reason = approve ? "Connection Success" : "Server full or Invalid Password"; 
         }
         
         

@@ -8,8 +8,10 @@ namespace __Scripts._Services.NetworkManagerService
 {
     public class NetworkManagerService : INetworkManagerService
     {
+        private const float KickDisconnectDelaySeconds = 2f;
+
         private readonly NetworkManager _networkManager;
-        private NetworkManagerRPCs _networkManagerRPCs;
+        private readonly NetworkManagerRPCs _networkManagerRPCs;
 
 
         public bool IsListening => _networkManager != null && _networkManager.IsListening;
@@ -35,7 +37,10 @@ namespace __Scripts._Services.NetworkManagerService
         
         public void StartHost()
         {
-            _networkManager.StartHost();
+            var isStarted = _networkManager.StartHost();
+            if (!isStarted) return;
+
+            _networkManagerRPCs.TrySpawnForServer();
         }
 
         public void StartClient()
@@ -54,12 +59,21 @@ namespace __Scripts._Services.NetworkManagerService
             _networkManager.DisconnectClient(clientId);
         }
         
-        public async void Kick(ulong clientId, string reason)
+        public void Kick(ulong clientId, string reason)
         {
+            if (_networkManager == null) return;
+            if (!_networkManager.IsListening || !_networkManager.IsServer) return;
+            if (clientId == _networkManager.LocalClientId) return;
+            if (!_networkManager.ConnectedClients.ContainsKey(clientId)) return;
+            if (!_networkManagerRPCs.TrySpawnForServer())
+            {
+                _networkManager.DisconnectClient(clientId);
+                return;
+            }
+
             Debug.Log($"Kick client {clientId}: {reason}");
 
-            _networkManagerRPCs.KickMessageRpc(clientId, reason);
-            await UniTask.WaitForSeconds(2f); 
+            _networkManagerRPCs.TrySendKickMessage(clientId, reason);
             _networkManager.DisconnectClient(clientId);
         }
 
