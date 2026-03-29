@@ -10,7 +10,7 @@ namespace __Scripts
     public class ConnectServerUI : MonoBehaviour
     {
         private const string ServerPassword = "parola123";
-        private const string InvalidClientPassword = "parola1234";
+        private const string InvalidClientPassword = "parola123";
         private const string AlreadyConnectedMessage = "Already connected to a server.";
         private const string ConnectionSuccessMessage = "Connection Success";
         private const string ConnectionFailedMessage = "Server full or Invalid Password";
