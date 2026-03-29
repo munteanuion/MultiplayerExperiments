@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -8,8 +9,9 @@ namespace __Scripts._Services.NetworkManagerService
     public class NetworkManagerService : INetworkManagerService
     {
         private readonly NetworkManager _networkManager;
-        
-        
+        private NetworkManagerRPCs _networkManagerRPCs;
+
+
         public bool IsListening => _networkManager != null && _networkManager.IsListening;
         public bool IsServer => _networkManager != null && _networkManager.IsServer;
         public ulong LocalClientId => _networkManager.LocalClientId;
@@ -21,8 +23,11 @@ namespace __Scripts._Services.NetworkManagerService
 
 
         
-        public NetworkManagerService(NetworkManager networkManager)
+        public NetworkManagerService(
+            NetworkManager networkManager,
+            NetworkManagerRPCs networkManagerRPCs)
         {
+            _networkManagerRPCs = networkManagerRPCs;
             _networkManager = networkManager;
         }
 
@@ -49,20 +54,13 @@ namespace __Scripts._Services.NetworkManagerService
             _networkManager.DisconnectClient(clientId);
         }
         
-        public void Kick(ulong clientId, string reason)
+        public async void Kick(ulong clientId, string reason)
         {
             Debug.Log($"Kick client {clientId}: {reason}");
 
-            KickMessageRpc(clientId, reason);
+            _networkManagerRPCs.KickMessageRpc(clientId, reason);
+            await UniTask.WaitForSeconds(2f); 
             _networkManager.DisconnectClient(clientId);
-        }
-        
-        [Rpc(SendTo.ClientsAndHost)]
-        private void KickMessageRpc(ulong targetClientId, string reason)
-        {
-            if (_networkManager.LocalClientId != targetClientId) return;
-
-            Debug.Log($"Kicked: {reason}");
         }
 
 
