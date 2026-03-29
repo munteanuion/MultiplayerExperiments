@@ -26,6 +26,9 @@ namespace __Scripts._Services.NetworkManagerService
         
         void SubscribeToClientConnected(Action<ulong> callback);
         void UnsubscribeFromClientConnected(Action<ulong> callback);
+
+        void SubscribeToClientDisconnected(Action<ulong, string> callback);
+        void UnsubscribeFromClientDisconnected(Action<ulong, string> callback);
         
         
         void SubscribeToConnectionApproval(Action<NetworkManager.ConnectionApprovalRequest, NetworkManager.ConnectionApprovalResponse> callback);

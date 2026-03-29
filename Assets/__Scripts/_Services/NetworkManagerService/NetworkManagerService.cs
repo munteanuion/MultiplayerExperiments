@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Cysharp.Threading.Tasks;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -8,10 +7,9 @@ namespace __Scripts._Services.NetworkManagerService
 {
     public class NetworkManagerService : INetworkManagerService
     {
-        private const float KickDisconnectDelaySeconds = 2f;
-
         private readonly NetworkManager _networkManager;
         private readonly NetworkManagerRPCs _networkManagerRPCs;
+        private readonly Dictionary<Action<ulong, string>, Action<ulong>> _clientDisconnectedCallbacks = new();
 
 
         public bool IsListening => _networkManager != null && _networkManager.IsListening;
@@ -102,6 +100,36 @@ namespace __Scripts._Services.NetworkManagerService
         {
             if (_networkManager != null)
                 _networkManager.OnClientConnectedCallback -= callback;
+        }
+
+        public void SubscribeToClientDisconnected(Action<ulong, string> callback)
+        {
+            if (callback == null || _networkManager == null) return;
+            if (_clientDisconnectedCallbacks.ContainsKey(callback)) return;
+
+            Action<ulong> wrappedCallback = clientId =>
+            {
+                var reason = string.Empty;
+
+                if (!_networkManager.IsServer && clientId == _networkManager.LocalClientId)
+                {
+                    reason = _networkManager.DisconnectReason;
+                }
+
+                callback(clientId, reason);
+            };
+
+            _clientDisconnectedCallbacks[callback] = wrappedCallback;
+            _networkManager.OnClientDisconnectCallback += wrappedCallback;
+        }
+
+        public void UnsubscribeFromClientDisconnected(Action<ulong, string> callback)
+        {
+            if (callback == null || _networkManager == null) return;
+            if (!_clientDisconnectedCallbacks.TryGetValue(callback, out var wrappedCallback)) return;
+
+            _networkManager.OnClientDisconnectCallback -= wrappedCallback;
+            _clientDisconnectedCallbacks.Remove(callback);
         }
     }
 }
