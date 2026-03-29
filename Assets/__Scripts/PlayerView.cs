@@ -12,12 +12,14 @@ namespace __Scripts
 
         private IInputService _inputService;
 
+        
         [Inject]
         private void Construct(IInputService inputService)
         {
             _inputService = inputService;
         }
 
+        
         private void Update()
         {
             if (!IsOwner)
