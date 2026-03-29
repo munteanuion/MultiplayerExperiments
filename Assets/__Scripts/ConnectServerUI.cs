@@ -1,27 +1,39 @@
 ﻿using System;
+using __Scripts._Services.NetworkManagerService;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
+using VContainer;
 
 namespace DefaultNamespace
 {
     public class ConnectServerUI : MonoBehaviour
     {
-        [SerializeField] private Button _createServerBtn;
-        [SerializeField] private Button _connectBtn;
+        [FormerlySerializedAs("_createServerBtn")] 
+        [SerializeField] private Button createServerBtn;
+        [FormerlySerializedAs("_connectBtn")] 
+        [SerializeField] private Button connectBtn;
         
-        private NetworkManager _networkManager => NetworkManager.Singleton;
+        private INetworkManagerService _networkManager;
+
+        [Inject]
+        private void Construct(INetworkManagerService networkManager)
+        {
+            _networkManager = networkManager;
+        }
+        
 
         private void OnEnable()
         {
-            _createServerBtn.onClick.AddListener(OnCreateServerClicked);
-            _connectBtn.onClick.AddListener(OnConnectClicked);
+            createServerBtn.onClick.AddListener(OnCreateServerClicked);
+            connectBtn.onClick.AddListener(OnConnectClicked);
         }
 
         private void OnDisable()
         {
-            _createServerBtn.onClick.RemoveListener(OnCreateServerClicked);
-            _connectBtn.onClick.RemoveListener(OnConnectClicked);
+            createServerBtn.onClick.RemoveListener(OnCreateServerClicked);
+            connectBtn.onClick.RemoveListener(OnConnectClicked);
         }
 
         private void OnCreateServerClicked()
