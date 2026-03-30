@@ -14,6 +14,8 @@ namespace __Scripts._Services.NetworkManagerService
         NetworkConfig NetworkConfig { get; }
         IReadOnlyDictionary<ulong, NetworkClient> ConnectedClients { get; }
 
+        void Init();
+        
         
         void StartHost();
         void StartClient();

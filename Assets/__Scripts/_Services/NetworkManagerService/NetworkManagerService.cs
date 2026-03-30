@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using VContainer;
+using VContainer.Unity;
 
 namespace __Scripts._Services.NetworkManagerService
 {
@@ -10,6 +12,7 @@ namespace __Scripts._Services.NetworkManagerService
         private readonly NetworkManager _networkManager;
         private readonly NetworkManagerRPCs _networkManagerRPCs;
         private readonly Dictionary<Action<ulong, string>, Action<ulong>> _clientDisconnectedCallbacks = new();
+        private IObjectResolver _resolver;
 
 
         public bool IsListening => _networkManager != null && _networkManager.IsListening;
@@ -31,6 +34,22 @@ namespace __Scripts._Services.NetworkManagerService
             _networkManager = networkManager;
         }
 
+        [Inject]
+        private void Construct(IObjectResolver resolver)
+        {
+            _resolver = resolver;
+        }
+
+        public void Init()
+        {
+            SubscribeToClientConnected(OnClientConnected);
+        }
+
+        ~NetworkManagerService()
+        {
+            UnsubscribeFromClientConnected(OnClientConnected);;
+        }
+        
         
         
         public void StartHost()
@@ -130,6 +149,15 @@ namespace __Scripts._Services.NetworkManagerService
 
             _networkManager.OnClientDisconnectCallback -= wrappedCallback;
             _clientDisconnectedCallbacks.Remove(callback);
+        }
+
+        
+        
+        
+        private void OnClientConnected(ulong clientId)
+        {
+            var playerObject = _networkManager.ConnectedClients[clientId].PlayerObject;
+            _resolver.InjectGameObject(playerObject.gameObject);
         }
     }
 }

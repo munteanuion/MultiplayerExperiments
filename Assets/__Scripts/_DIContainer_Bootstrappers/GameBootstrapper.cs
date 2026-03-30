@@ -24,6 +24,7 @@ namespace __Scripts._DIContainer_Bootstrappers
         {
             _inputService.DisablePlayerActions();
             _isInputEnabled = false;
+            _networkManagerService.Init();
         }
 
         public void Tick()
